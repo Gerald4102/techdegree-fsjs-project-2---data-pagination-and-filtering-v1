@@ -12,7 +12,9 @@ For assistance:
 */
 const studentList = document.querySelector('.student-list');
 const studentsPerPage = 9;
+const numberOfPages = Math.ceil(data.length /studentsPerPage);
 const linkList = document.querySelector('.link-list');
+let activePage = 1;
 /*
 Create the `showPage` function
 This function will create and insert/append the elements needed to display a "page" of nine students
@@ -21,17 +23,26 @@ function showPage(students) {
    let page = 5;
    if ( page === 5 ) {
       const firstStudent = (page * studentsPerPage) - studentsPerPage;
-      for( let i=0; i<studentsPerPage; i++ ) {
+      let lastStudent = 0;
+      if ( page*studentsPerPage < data.length ) {
+         lastStudent = page*studentsPerPage;
+      } else {
+         lastStudent = data.length;
+      }
+          console.log(firstStudent);
+          console.log(lastStudent);
+          console.log(data.length);
+      for( let i=firstStudent; i<lastStudent; i++ ) {
          studentList.insertAdjacentHTML( 'beforeend', 
          `
             <li class="student-item cf">
                <div class="student-details">
-                  <img class="avatar" src="${students[i+firstStudent].picture.large}" alt="Profile Picture">
-                  <h3>${students[i+firstStudent].name.first} ${students[i].name.last}</h3>
-                  <span class="email">${students[i+firstStudent].email}</span>
+                  <img class="avatar" src="${students[i].picture.large}" alt="Profile Picture">
+                  <h3>${students[i].name.first} ${students[i ].name.last}</h3>
+                  <span class="email">${students[i].email}</span>
                </div>
                <div class="joined-details">
-                  <span class="date">Joined ${students[i+firstStudent].registered.date}</span>
+                  <span class="date">Joined ${students[i].registered.date}</span>
                </div>
             </li>
          `);
@@ -45,16 +56,15 @@ Create the `addPagination` function
 This function will create and insert/append the elements needed for the pagination buttons
 */
 function addPagination(students) {
-   const numberOfPages = Math.ceil(students.length /studentsPerPage);
-   for ( let i=0; i<numberOfPages; i++ ) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = i+1;
-      if ( i===0 ) {
-         button.className = 'active';
-      };
-      linkList.append(button);
-   }
+for ( let i=0; i<numberOfPages; i++ ) {
+   const button = document.createElement('button');
+   button.type = 'button';
+   button.textContent = i+1;
+   if ( i===0 ) {
+      button.className = 'active';
+   };
+   linkList.append(button);
+}
 }
 
 
@@ -62,5 +72,8 @@ function addPagination(students) {
 addPagination(data);
 showPage(data);
 
-
+linkList.addEventListener('click', (event)=> {
+   activePage = event.target.textContent;
+   console.log(activePage);
+});
 
