@@ -19,6 +19,9 @@ let displayData = data;
 
 const header = document.querySelector('header');
 
+/*
+Creates the search bar to be displayed in the header for the exceeds exectations requirements.
+*/
 function showFilter () {
    const label = document.createElement('label');
    const span = document.createElement('span');
@@ -42,6 +45,9 @@ function showFilter () {
    header.append(label);
 }
 
+/*
+Compares the text input from the search bar against the names in data.js and displays the results
+*/
 function filterStudents(students, searchText) {
    let searchResults = [];
    for ( let i=0; i<data.length; i++ ) {
@@ -111,6 +117,7 @@ showFilter();
 addPagination(data);
 showPage(data);
 
+// Event listeners
 linkList.addEventListener('click', (event)=> {
    if(event.target.type === 'button') {
       activePage = event.target.textContent;
@@ -127,7 +134,6 @@ linkList.addEventListener('click', (event)=> {
 });
 
 const searchFilter = header.querySelector('input');
-const searchBtn = header.querySelector('button');
 
 searchFilter.addEventListener('keyup', (event)=> {
    filterStudents(data, event.target.value.toLowerCase());
