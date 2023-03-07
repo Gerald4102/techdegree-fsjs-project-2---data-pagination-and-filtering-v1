@@ -10,10 +10,9 @@ For assistance:
    Check out the "Project Resources" section of the Instructions tab: https://teamtreehouse.com/projects/data-pagination-and-filtering#instructions
    Reach out in your Slack community: https://treehouse-fsjs-102.slack.com/app_redirect?channel=unit-2
 */
-const studentList = document.querySelector('.student-list');
-const studentsPerPage = 9;
-let numberOfPages = Math.ceil(data.length /studentsPerPage);
-const linkList = document.querySelector('.link-list');
+let studentList = document.querySelector('.student-list');
+
+
 let activePage = 1;
 let displayData = data;
 
@@ -68,28 +67,28 @@ function filterStudents(students, searchText) {
 Create the `showPage` function
 This function will create and insert/append the elements needed to display a "page" of nine students
 */
-function showPage(students) {
-   const firstStudent = (activePage * studentsPerPage) - studentsPerPage;
-   let lastStudent = 0;
-   if ( activePage*studentsPerPage < students.length ) {
-      lastStudent = activePage*studentsPerPage;
-   } else {
-      lastStudent = students.length;
-   }
-   for( let i=firstStudent; i<lastStudent; i++ ) {
-      studentList.insertAdjacentHTML( 'beforeend', 
-      `
-         <li class="student-item cf">
-            <div class="student-details">
-               <img class="avatar" src="${students[i].picture.large}" alt="Profile Picture">
-               <h3>${students[i].name.first} ${students[i ].name.last}</h3>
-               <span class="email">${students[i].email}</span>
-            </div>
-            <div class="joined-details">
-               <span class="date">Joined ${students[i].registered.date}</span>
-            </div>
-         </li>
-      `);
+function showPage(list, page) {
+   const studentsPerPage = 9;
+   const startIndex = (page * studentsPerPage) - studentsPerPage;
+   const endIndex = page * studentsPerPage;
+   let studentList = document.querySelector('.student-list');
+   studentList.innerHTML = '';
+   for( let i=0; i<list.length; i++ ) {
+      if( i >= startIndex && i < endIndex ) {
+         studentList.insertAdjacentHTML( 'beforeend', 
+         `
+            <li class="student-item cf">
+               <div class="student-details">
+                  <img class="avatar" src="${list[i].picture.large}" alt="Profile Picture">
+                  <h3>${list[i].name.first} ${list[i ].name.last}</h3>
+                  <span class="email">${list[i].email}</span>
+               </div>
+               <div class="joined-details">
+                  <span class="date">Joined ${list[i].registered.date}</span>
+               </div>
+            </li>
+         `);
+      } 
    }
 }
 
@@ -98,40 +97,40 @@ function showPage(students) {
 Create the `addPagination` function
 This function will create and insert/append the elements needed for the pagination buttons
 */
-function addPagination(students) {
+function addPagination(list) {
+   const studentsPerPage = 9;
+   let numberOfPages = Math.ceil(list.length /studentsPerPage);   
+   const linkList = document.querySelector('.link-list');
+   linkList.innerHTML = '';
    for ( let i=0; i<numberOfPages; i++ ) {
       const li = document.createElement('li');
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = i+1;
-      if ( i===0 ) {
-         button.className = 'active';
-      };
       li.append(button)
       linkList.append(li);
    }
+   linkList.querySelector('button').className = 'active';
+   linkList.addEventListener('click', (event)=> {
+      if(event.target.type === 'button') {
+         //activePage = event.target.textContent;
+         const buttons = linkList.querySelectorAll('button');
+         for ( let i=0; i<numberOfPages; i++ ) {
+            buttons[i].className = '';
+         }
+         event.target.className = 'active';
+         showPage(data, event.target.textContent);
+      }
+   });
 }
 
 // Call functions
 showFilter();
+showPage(data,1);
 addPagination(data);
-showPage(data);
 
 // Event listeners
-linkList.addEventListener('click', (event)=> {
-   if(event.target.type === 'button') {
-      activePage = event.target.textContent;
-      const buttons = linkList.querySelectorAll('button');
-      for ( let i=0; i<numberOfPages; i++ ) {
-         buttons[i].className = '';
-         if ( i === activePage-1 ) {
-            buttons[i].className = 'active';
-         }
-      }
-      studentList.innerHTML = '';
-      showPage(displayData);
-   }
-});
+
 
 const searchFilter = header.querySelector('input');
 
