@@ -12,11 +12,52 @@ For assistance:
 */
 const studentList = document.querySelector('.student-list');
 const studentsPerPage = 9;
-const numberOfPages = Math.ceil(data.length /studentsPerPage);
+let numberOfPages = Math.ceil(data.length /studentsPerPage);
 const linkList = document.querySelector('.link-list');
 let activePage = 1;
+let displayData = data;
 
+const header = document.querySelector('header');
 
+function showFilter () {
+   const label = document.createElement('label');
+   const span = document.createElement('span');
+   const input = document.createElement('input');
+   const button = document.createElement('button');
+   const img = document.createElement('img');
+
+   // setting the label's for attribute as shown here: https://stackoverflow.com/questions/15750290/setting-the-html-label-for-attribute-in-javascript
+   label.htmlFor = 'search';
+   label.className = 'student-search';
+   span.textContent = 'Search by name';
+   input.id = 'search';
+   input.placeholder = 'Search by name...';
+   img.src = 'img/icn-search.svg';
+   img.alt = 'Search icon';
+
+   button.append(img);
+   label.append(span);
+   label.append(input);
+   label.append(button);
+   header.append(label);
+}
+
+function filterStudents(students, searchText) {
+   let searchResults = [];
+   for ( let i=0; i<data.length; i++ ) {
+      let studentNames = `${students[i].name.first.toLowerCase()} ${students[i].name.last.toLowerCase()}`;
+      if(studentNames.includes(searchText)) {
+         searchResults.push(students[i]);
+      };
+   }
+   linkList.innerHTML = '';
+   studentList.innerHTML = '';
+   activePage = 1
+   numberOfPages = Math.ceil(searchResults.length /studentsPerPage);
+   displayData = searchResults;
+   addPagination(searchResults);
+   showPage(searchResults);
+}
 /*
 Create the `showPage` function
 This function will create and insert/append the elements needed to display a "page" of nine students
@@ -24,10 +65,10 @@ This function will create and insert/append the elements needed to display a "pa
 function showPage(students) {
    const firstStudent = (activePage * studentsPerPage) - studentsPerPage;
    let lastStudent = 0;
-   if ( activePage*studentsPerPage < data.length ) {
+   if ( activePage*studentsPerPage < students.length ) {
       lastStudent = activePage*studentsPerPage;
    } else {
-      lastStudent = data.length;
+      lastStudent = students.length;
    }
    for( let i=firstStudent; i<lastStudent; i++ ) {
       studentList.insertAdjacentHTML( 'beforeend', 
@@ -65,8 +106,8 @@ function addPagination(students) {
    }
 }
 
-
 // Call functions
+showFilter();
 addPagination(data);
 showPage(data);
 
@@ -81,6 +122,13 @@ linkList.addEventListener('click', (event)=> {
          }
       }
       studentList.innerHTML = '';
-      showPage(data);
+      showPage(displayData);
    }
+});
+
+const searchFilter = header.querySelector('input');
+const searchBtn = header.querySelector('button');
+
+searchFilter.addEventListener('keyup', (event)=> {
+   filterStudents(data, event.target.value.toLowerCase());
 });
