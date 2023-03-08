@@ -10,11 +10,68 @@ For assistance:
    Check out the "Project Resources" section of the Instructions tab: https://teamtreehouse.com/projects/data-pagination-and-filtering#instructions
    Reach out in your Slack community: https://treehouse-fsjs-102.slack.com/app_redirect?channel=unit-2
 */
-let studentList = document.querySelector('.student-list');
 
 
-let activePage = 1;
-let displayData = data;
+/*
+Create the `showPage` function
+This function will create and insert/append the elements needed to display a "page" of nine students
+*/
+function showPage(list, page) {
+   const studentsPerPage = 9;
+   const startIndex = (page * studentsPerPage) - studentsPerPage;
+   const endIndex = page * studentsPerPage;
+   let studentList = document.querySelector('.student-list');
+   studentList.innerHTML = '';
+   for( let i=0; i<list.length; i++ ) {
+      if( i >= startIndex && i < endIndex ) {
+         studentList.insertAdjacentHTML( 'beforeend', 
+         `
+            <li class="student-item cf">
+               <div class="student-details">
+                  <img class="avatar" src="${list[i].picture.large}" alt="Profile Picture">
+                  <h3>${list[i].name.first} ${list[i ].name.last}</h3>
+                  <span class="email">${list[i].email}</span>
+               </div>
+               <div class="joined-details">
+                  <span class="date">Joined ${list[i].registered.date}</span>
+               </div>
+            </li>
+         `);
+      } 
+   }
+}
+
+
+/*
+Create the `addPagination` function
+This function will create and insert/append the elements needed for the pagination buttons
+*/
+function addPagination(list) {
+   const studentsPerPage = 9;
+   const numberOfPages = Math.ceil(list.length /studentsPerPage);   
+   const linkList = document.querySelector('.link-list');
+   linkList.innerHTML = '';
+   for ( let i=0; i<numberOfPages; i++ ) {
+      const li = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = i+1;
+      li.append(button)
+      linkList.append(li);
+   }
+   linkList.querySelector('button').className = 'active';
+   linkList.addEventListener('click', (event)=> {
+      if(event.target.type === 'button') {
+         const buttons = linkList.querySelectorAll('button');
+         for ( let i=0; i<buttons.length; i++ ) {
+            buttons[i].className = '';
+         }
+         event.target.className = 'active';
+         showPage(list, event.target.textContent);
+      }
+   });
+}
+
 
 const header = document.querySelector('header');
 
@@ -55,85 +112,30 @@ function filterStudents(students, searchText) {
          searchResults.push(students[i]);
       };
    }
-   linkList.innerHTML = '';
-   studentList.innerHTML = '';
-   activePage = 1
-   numberOfPages = Math.ceil(searchResults.length /studentsPerPage);
-   displayData = searchResults;
-   addPagination(searchResults);
-   showPage(searchResults);
-}
-/*
-Create the `showPage` function
-This function will create and insert/append the elements needed to display a "page" of nine students
-*/
-function showPage(list, page) {
-   const studentsPerPage = 9;
-   const startIndex = (page * studentsPerPage) - studentsPerPage;
-   const endIndex = page * studentsPerPage;
-   let studentList = document.querySelector('.student-list');
-   studentList.innerHTML = '';
-   for( let i=0; i<list.length; i++ ) {
-      if( i >= startIndex && i < endIndex ) {
-         studentList.insertAdjacentHTML( 'beforeend', 
-         `
-            <li class="student-item cf">
-               <div class="student-details">
-                  <img class="avatar" src="${list[i].picture.large}" alt="Profile Picture">
-                  <h3>${list[i].name.first} ${list[i ].name.last}</h3>
-                  <span class="email">${list[i].email}</span>
-               </div>
-               <div class="joined-details">
-                  <span class="date">Joined ${list[i].registered.date}</span>
-               </div>
-            </li>
-         `);
-      } 
-   }
-}
 
-
-/*
-Create the `addPagination` function
-This function will create and insert/append the elements needed for the pagination buttons
-*/
-function addPagination(list) {
-   const studentsPerPage = 9;
-   let numberOfPages = Math.ceil(list.length /studentsPerPage);   
-   const linkList = document.querySelector('.link-list');
-   linkList.innerHTML = '';
-   for ( let i=0; i<numberOfPages; i++ ) {
-      const li = document.createElement('li');
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = i+1;
-      li.append(button)
-      linkList.append(li);
+   if( searchResults.length === 0 ) {
+      document.querySelector('.student-list').innerHTML = `<p>No results found</p>`;
+      document.querySelector('.link-list').innerHTML = ''; 
+   } else {
+      addPagination(searchResults);
+      showPage(searchResults,1);
    }
-   linkList.querySelector('button').className = 'active';
-   linkList.addEventListener('click', (event)=> {
-      if(event.target.type === 'button') {
-         //activePage = event.target.textContent;
-         const buttons = linkList.querySelectorAll('button');
-         for ( let i=0; i<numberOfPages; i++ ) {
-            buttons[i].className = '';
-         }
-         event.target.className = 'active';
-         showPage(data, event.target.textContent);
-      }
+
+   const searchFilter = header.querySelector('input');
+   const searchBtn = header.querySelector('button');
+
+   searchFilter.addEventListener('keyup', (event)=> {
+      filterStudents(data, event.target.value.toLowerCase());
+   });
+   searchBtn.addEventListener('click', (event)=> {
+      filterStudents(data, searchFilter.value.toLowerCase());
    });
 }
+
+
 
 // Call functions
 showFilter();
 showPage(data,1);
 addPagination(data);
-
-// Event listeners
-
-
-const searchFilter = header.querySelector('input');
-
-searchFilter.addEventListener('keyup', (event)=> {
-   filterStudents(data, event.target.value.toLowerCase());
-});
+filterStudents(data, '');
